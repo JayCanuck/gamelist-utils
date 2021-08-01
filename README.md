@@ -14,7 +14,7 @@ This is the most common usage and all the average user would need.
 
 Alternatively, it can be invoked directly via `npx` without installing:
 ```
-npx gamelist [...]
+npx gamelist-utils [...]
 ```
 
 For programmic API-based usage, `gamelist-utils` can be installed locally in projects like any other library
