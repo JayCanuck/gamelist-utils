@@ -1,4 +1,4 @@
-# gamelist-utils  [![NPM](https://img.shields.io/npm/v/gamelist-utils.svg)](https://www.npmjs.com/package/gamelist-utils)
+# gamelist-utils  [![NPM](https://img.shields.io/npm/v/gamelist-utils.svg)](https://www.npmjs.com/package/gamelist-utils) [![GitHub Actions](https://github.com/jaycanuck/gamelist-utils/actions/workflows/lint.yml/badge.svg)](https://github.com/JayCanuck/gamelist-utils/actions/workflows/lint.yml)
 > A toolbox for EmulationStation gamelist.xml romsets.
 
 These are main a collection of my own personal utilities when working with and manipulation gamelist.xml-based romsets.
