@@ -1,0 +1,14 @@
+﻿<ImageComposition xsi:noNamespaceSchemaLocation="https://www.skraper.net/ImageComposition.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Information ShortName="Best Screenshot LD 4:3" LongName="Best Screenshot" Description="Screenshot (or title screenshot)" Author="Jason Robitaille" />
+  <Viewport Color="#00FFFFFF" Width="800" Height="600" />
+  <Drawings>
+    <Item Type="Screenshot">
+      <Display X="50%" Y="50%" Antialiasing="None" Width="100%" Height="100%" Anchor="VCenterHCenter" />
+      <Fallback Type="ScreenshotTitle">
+        <Fallback Type="SystemWallPaper">
+            <Item Type="Text" Text="No Screenshot!" TextColor="#FFFFFFFF" FontFamilly="Open Sans" FontStyle="Bold Italic" />
+        </Fallback>
+      </Fallback>
+    </Item>
+  </Drawings>
+</ImageComposition>

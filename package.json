@@ -1,0 +1,61 @@
+{
+  "name": "gamelist-utils",
+  "version": "1.0.0",
+  "description": "A toolbox for EmulationStation gamelist.xml romsets",
+  "main": "index.js",
+  "bin": {
+    "gamelist": "./bin/gamelist.js"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "fix": "eslint . --fix",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JayCanuck/gamelist-utils.git"
+  },
+  "keywords": [
+    "gamelist.xml",
+    "emulationstation",
+    "rom",
+    "romset",
+    "emulator",
+    "emulation",
+    "retro",
+    "retropie",
+    "retrobat",
+    "batocera",
+    "recalbox"
+  ],
+  "author": "Jason Robitaille",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/JayCanuck/gamelist-utils/issues"
+  },
+  "homepage": "https://github.com/JayCanuck/gamelist-utils#readme",
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 4,
+    "useTabs": true,
+    "singleQuote": true,
+    "quoteProps": "preserve",
+    "trailingComma": "none",
+    "arrowParens": "avoid"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.5",
+    "dotenv": "^10.0.0",
+    "fs-extra": "^10.0.0",
+    "fswin": "^3.21.107",
+    "minimist": "^1.2.5",
+    "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-prettier": "^3.4.0",
+    "prettier": "^2.3.2"
+  }
+}
