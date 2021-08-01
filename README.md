@@ -45,11 +45,11 @@ system
 └───[rom files (usually single files or zip per rom)]
 ```
 
-Within the `./skraper` subdirectory of this repo, I've inclused 2 of my favourite custom Skraper mixes whcich use my preferred fallbacks. Feel free to use them if you desire.
+Within the `./skraper` [subdirectory of this repo](https://github.com/JayCanuck/gamelist-utils/tree/main/skraper), I've inclused 2 of my favourite custom Skraper mixes whcich use my preferred fallbacks. Feel free to use them if you desire.
 
 ## Configuration overrides
 
-Environment variable and `.env` files can be used to customize the expected metadata directory layout. See the built-in `.env` as an example.
+Environment variable and `.env` files can be used to customize the expected metadata directory layout. See the [included default `.env`](https://github.com/JayCanuck/gamelist-utils/blob/main/.env) as an example.
 
 ## CLI actions
 
