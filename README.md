@@ -55,6 +55,7 @@ Environment variable and `.env` files can be used to customize the expected meta
 
 This utility contains a number of actions that can be executed on gamelist.xml romsets.
 
+* `backup` : Creates a backup copy of `gamelist.xml` as `gamelist.xml.bak`.
 * `copy` : Copies romset to a destination with optional transformations applied in the process. Minimal extra data transfer overhead to ensure fastest copying (useful for slow microSD cards).
 * `duplicates` : Scans `gamelist.xml` looking for repeat occurrances of game `id` values (set by [Skraper](http://skraper.net/)). For any games listed in a `gamelist.Missing.Serial.txt`, it will also attempt to detect possible duplicate names after removing region and token identifiers.
 * `playlists` : Scans non-media subdirectories of the romset and will generate `.m3u` playlists for contained files, assuming each are disk files. Uses the subdirectory names as the game names.  Best to run the before any scaping occurs, if needed.
