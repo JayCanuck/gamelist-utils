@@ -110,6 +110,8 @@ For example, this filter will only include these 5 specific games, 3 on PCEngine
 		{ "id": "14543", "system": "NEC PC Engine" },
 		{ "id": "103574", "system": "NEC PC Engine CD-Rom" },
 		{ "id": "59796", "system": "NEC PC Engine" }
+    ]
+}
 ```
 One obvious caveat, however, is that the `gamelist.xml` must have been generated as expected, with ScreenScaper metadata.
 
