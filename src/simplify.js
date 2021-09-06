@@ -1,5 +1,5 @@
-// Converts an EmulationStation/ScreenScraper rom directory into one for SimpleMenu.
-// https://github.com/fgl82/simplemenu
+// Simplifies a gamelist.xml for minimal or low-powered systems
+// Helps remove bulky, unneeded, and unused metadata and files.
 const path = require('path');
 const fs = require('fs-extra');
 const { update } = require('./utils/gamelist');
@@ -38,6 +38,9 @@ const api = async function (dir, { 'keep-desc': keepDesc, unused, video, quiet }
 		if (!keepDesc) delete game.desc;
 		if (game.image && game.image[0]) {
 			usedMedia.push(path.join(dir, game.image[0]));
+		}
+		if (game.marquee && game.marquee[0]) {
+			usedMedia.push(path.join(dir, game.marquee[0]));
 		}
 		if (video === false) {
 			delete game.video;
