@@ -7,8 +7,8 @@ const { api: copy } = require('./copy');
 
 const options = {
 	boolean: ['extract', 'quiet', 'help'],
-	string: ['copy', 'image'],
-	alias: { c: 'copy', e: 'extract', i: 'image', m: 'multi', q: 'quiet', h: 'help' }
+	string: ['copy', 'image', 'filter'],
+	alias: { c: 'copy', e: 'extract', i: 'image', f: 'filter', m: 'multi', q: 'quiet', h: 'help' }
 }; // multi omitted as it can be string or boolean
 
 const help = function () {
@@ -20,6 +20,7 @@ const help = function () {
 	console.log('    -e, --extract     Extract roms from zip files');
 	console.log('                          Only works with single-file rom types');
 	console.log('    -i, --image       Use specific image type');
+	console.log('    -f, --filter      JSON file with preset include/exclude lists for filtering');
 	console.log('    -q, --quiet       Quiet console output');
 	console.log('    -m, --multi       Target subdirectories instead of working directory');
 	console.log('                          Comma-separated list or "all" for all');
@@ -29,8 +30,12 @@ const help = function () {
 	process.exit(0);
 };
 
-const api = async function (dir, { copy: destination, extract, image = 'screenshot', quiet } = {}) {
-	if (destination) dir = await copy(dir, { destination, image, preserve: false, quiet: true });
+const api = async function (
+	dir,
+	{ copy: destination, extract, image = 'screenshot', filter, quiet } = {}
+) {
+	if (destination)
+		dir = await copy(dir, { destination, image, preserve: false, filter, quiet: true });
 
 	// Remove unneeded image files; relocate desired images as appropriate
 	const mediaPath = path.join(path.resolve(dir), process.env.GAMELIST_MEDIA || 'media');

@@ -8,7 +8,7 @@ const minimist = require('minimist');
 const gamelistUtils = require('..');
 
 // Uncaught error handler
-process.on('uncaughtException', err => console.error(err.stack));
+process.on('uncaughtException', err => console.error(err.message || err));
 
 // Detect action string
 const action = process.argv[2];
@@ -72,12 +72,16 @@ if (args.multi) {
 				break;
 			case 'image-type':
 				args.type = args._[1];
+				break;
+			case 'marquee':
+			case 'video':
+				args.state = args._[1];
 		}
 		// Invoke API
 		try {
 			await gamelistUtils[action](target, args);
 		} catch (e) {
-			console.error('ERROR:', e);
+			console.error('ERROR:', e.message || e);
 		}
 
 		if (!args.quiet && targets.length > 1) console.log();

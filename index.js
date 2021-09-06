@@ -16,13 +16,16 @@ exportAPIs([
 	// List of commands to export via getters
 	// Could be done programmably, but staticly set instead as a signifier of intent
 	'backup',
+	'collection',
 	'convert',
 	'copy',
 	'duplicates',
 	'image-type',
 	'lock',
 	'playlists',
-	'remove-video',
+	'marquee',
+	'video',
+	'test',
 	'simplify',
 	'unlock'
 ]);

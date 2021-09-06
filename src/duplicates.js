@@ -2,7 +2,7 @@
 // Relies on game ID values being assigned by Skraper (http://skraper.net/)
 const path = require('path');
 const fs = require('fs-extra');
-const { update } = require('./utils/gamelist');
+const { forEach } = require('./utils/gamelist');
 
 const options = {
 	boolean: ['quiet', 'help'],
@@ -28,7 +28,7 @@ const api = async function (dir, { quiet } = {}) {
 	const missing = [];
 	const possibly = [];
 	const found = {};
-	await update(dir, game => {
+	await forEach(dir, game => {
 		if (game?.$?.id) {
 			found[game.$.id] = (found[game.$.id] || []).concat(game.path[0]);
 		}
