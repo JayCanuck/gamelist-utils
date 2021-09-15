@@ -44,10 +44,7 @@ const api = async function (dir, { state = 'enable', delete: remove, quiet } = {
 						path
 							.join(media, snap, path.basename(rom, path.extname(rom)) + '.mp4')
 							.replace(/[\\/]+/g, '/');
-					if (fs.existsSync(path.join(dir, relVideo))) {
-						game.video = game.video || [];
-						game.video[0] = relVideo;
-					}
+					if (fs.existsSync(path.join(dir, relVideo))) game.video = [relVideo];
 				}
 			});
 			break;

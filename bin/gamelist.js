@@ -73,6 +73,7 @@ if (args.multi) {
 			case 'image-type':
 				args.type = args._[1];
 				break;
+			case 'thumbnail':
 			case 'marquee':
 			case 'video':
 				args.state = args._[1];

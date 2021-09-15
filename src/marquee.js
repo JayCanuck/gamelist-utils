@@ -44,10 +44,7 @@ const api = async function (dir, { state = 'enable', delete: remove, quiet } = {
 						path
 							.join(media, marquee, path.basename(rom, path.extname(rom)) + '.png')
 							.replace(/[\\/]+/g, '/');
-					if (fs.existsSync(path.join(dir, relMarquee))) {
-						game.marquee = game.marquee || [];
-						game.marquee[0] = relMarquee;
-					}
+					if (fs.existsSync(path.join(dir, relMarquee))) game.marquee = [relMarquee];
 				}
 			});
 			break;

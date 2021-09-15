@@ -23,6 +23,7 @@ exportAPIs([
 	'image-type',
 	'lock',
 	'playlists',
+	'thumbnail',
 	'marquee',
 	'video',
 	'test',
