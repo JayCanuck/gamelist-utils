@@ -70,6 +70,10 @@ if (args.multi) {
 					args.destination = path.join(args._[1], sys);
 				}
 				break;
+			case 'folder':
+				args.task = args._[1];
+				args.folder = args._[2];
+				break;
 			case 'image-type':
 				args.type = args._[1];
 				break;

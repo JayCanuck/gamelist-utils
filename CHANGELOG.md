@@ -2,6 +2,10 @@
 
 All notable changes will be documented in this file.
 
+## 1.4.0 - 2021-09-18
+
+* Added support for `folder` action, which can add and remove directory `<folder>` entries and their contained games. Supports customizing name, description and icon for folder entries themselves.
+
 ## 1.3.0 - 2021-09-14
 
 * Added support for `thumbnail` action, which works similar to `marquee` and `video` actions, but with the added ability to generate the thumbnail images from an existing asset image type and scale it down into thumbnail size.

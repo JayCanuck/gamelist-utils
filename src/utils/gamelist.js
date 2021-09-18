@@ -41,6 +41,22 @@ const getProvider = function (data) {
 	return provider;
 };
 
+const ensureGames = function (data = {}) {
+	data.gameList = data.gameList || {};
+	data.gameList.game = data.gameList.game || [];
+	data.gameList.game.forEach(game => {
+		game.path = game.path || [];
+		game.path[0] = game.path[0] || '';
+	});
+	if (data.gameList.folder && data.gameList.folder.length > 0) {
+		data.gameList.folder.forEach(folder => {
+			folder.path = folder.path || [];
+			folder.path[0] = folder.path[0] || '';
+		});
+	}
+	return data;
+};
+
 const forEach = async function (dir, handler) {
 	const { data, provider } = await read(dir);
 	if (!data || !data.gameList || !Array.isArray(data.gameList.game)) return;
@@ -54,4 +70,4 @@ const update = async function (dir, handler) {
 	write(xml, data);
 };
 
-module.exports = { read, write, forEach, update };
+module.exports = { read, write, ensureGames, forEach, update };

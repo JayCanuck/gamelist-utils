@@ -1,6 +1,6 @@
 {
   "name": "gamelist-utils",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A toolbox for EmulationStation gamelist.xml romsets",
   "main": "index.js",
   "bin": {
