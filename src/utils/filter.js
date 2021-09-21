@@ -1,9 +1,12 @@
+const path = require('path');
 const fs = require('fs-extra');
+const JSON5 = require('json5')
 
 const getValue = (game, field) => (Array.isArray(game[field]) ? game[field][0] : game[field]);
 const getMeta = (game, field) => (game.$ ? getValue(game.$, field) : undefined);
 const testcase = (game, provider, criteria, polarity) =>
 	Object.keys(criteria).every(key => {
+		if (['comment', 'comments'].includes(key)) return true; // ignore comments
 		if (key === 'system') {
 			return !provider || (criteria[key] === provider.system) === polarity;
 		} else if (key === 'id') {
@@ -20,7 +23,11 @@ const testcase = (game, provider, criteria, polarity) =>
 
 class Filter {
 	constructor(file) {
-		this.data = JSON.parse(fs.readFileSync(file, { encoding: 'utf8' }));
+		if (file.endsWith('.js')) {
+			this.data = require(path.resolve(file));
+		} else {
+			this.data = JSON5.parse(fs.readFileSync(file, { encoding: 'utf8' }));
+		}
 	}
 
 	test(game, provider) {
