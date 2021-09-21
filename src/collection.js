@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const Filter = require('./utils/filter');
 const gamelist = require('./utils/gamelist');
+const system = require('./utils/system');
 
 const options = {
 	boolean: ['quiet', 'help'],
@@ -50,8 +51,8 @@ const api = async function (dir, { output, filter: filterFile, prefix, quiet } =
 	});
 
 	let collectionName = filterFile
-		? 'custom-' + path.basename(filterFile, '.json') + '.cfg'
-		: 'My ' + path.basename(process.cwd()).toLocaleUpperCase() + ' Collection';
+		? 'custom-' + system.getName(path.basename(filterFile, '.json')) + '.cfg'
+		: 'My ' + system.getName(path.basename(process.cwd())) + ' Collection';
 	let outputPath = '';
 	if (fs.existsSync(output) && fs.statSync(output).isDirectory()) {
 		outputPath = output;
