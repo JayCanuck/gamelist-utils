@@ -1,0 +1,7 @@
+{
+	"include": [
+		{ "nameContains": "Pokemon" },
+		{ "nameContains": "Pokémon" },
+		{ "nameContains": "Pocket Monsters" }
+	]
+}

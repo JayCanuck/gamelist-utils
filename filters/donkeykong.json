@@ -1,0 +1,6 @@
+{
+	"include": [
+		{ "nameContains": "Donkey Kong" },
+		{ "nameContains": "Diddy Kong" }
+	]
+}

@@ -1,0 +1,8 @@
+{
+	"include": [
+		{ "nameContains": "Mario" },
+		{ "nameContains": "Luigi" },
+		{ "nameContains": "Yoshi" },
+		{ "nameContains": "Wario" }
+	]
+}
