@@ -51,12 +51,12 @@ const api = async function (dir, { output, filter: filterFile, prefix, quiet } =
 	});
 
 	let collectionName = filterFile
-		? 'custom-' + system.getName(path.basename(filterFile, '.json')) + '.cfg'
+		? 'custom-' + system.getName(path.basename(filterFile, path.extname(filterFile))) + '.cfg'
 		: 'My ' + system.getName(path.basename(process.cwd())) + ' Collection';
 	let outputPath = '';
 	if (fs.existsSync(output) && fs.statSync(output).isDirectory()) {
 		outputPath = output;
-	} else {
+	} else if (output) {
 		collectionName = output;
 	}
 	const cfgFile = path.join(outputPath, collectionName);
