@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs-extra');
-const JSON5 = require('json5')
+const JSON5 = require('json5');
 
 const getValue = (game, field) => (Array.isArray(game[field]) ? game[field][0] : game[field]);
 const getMeta = (game, field) => (game.$ ? getValue(game.$, field) : undefined);
@@ -13,11 +13,11 @@ const testcase = (game, provider, criteria, polarity) =>
 			const gameID = getMeta(game, 'id');
 			return gameID && (criteria[key] === gameID) === polarity;
 		} else if (key.endsWith('Contains')) {
-			const value = getValue(game, key.replace('Contains', ''));
-			return value && value.includes(criteria[key]) === polarity;
+			const value = getValue(game, key.replace('Contains', '')).toLowerCase();
+			return value && value.toLowerCase().includes(criteria[key]) === polarity;
 		} else {
 			const value = getValue(game, key);
-			return value && (criteria[key] === value) === polarity;
+			return value && (criteria[key].toLowerCase() === value.toLowerCase()) === polarity;
 		}
 	});
 
