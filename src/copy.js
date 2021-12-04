@@ -1,6 +1,7 @@
 // Copies romset directory, with a variety of transformational options.
 const path = require('path');
 const fs = require('fs-extra');
+const PQueue = require('p-queue-compat').default;
 const { api: setImageType } = require('./image-type');
 const { api: updateVideo } = require('./video');
 const { api: unlock } = require('./unlock');
@@ -131,19 +132,29 @@ const api = async function (
 			.map(d => path.join(media, d));
 
 		// Copy targets to destination
-		targets.concat(mediaTargets).forEach(e => {
-			let entry = path.join(dir, e);
-			if (!fs.existsSync(entry)) return;
-			if (fs.statSync(entry).isDirectory()) {
-				let destinationDir = path.join(destination, e);
-				if (image && !preserve && e == path.join(media, image))
-					destinationDir = path.join(destination, media);
-				fs.ensureDirSync(destinationDir);
-				fs.copySync(entry, destinationDir, { filter: copyHandler });
-			} else {
-				fs.copySync(entry, path.join(destination, e), { filter: copyHandler });
-			}
-		});
+		const queue = new PQueue({ concurrency: 8 });
+		await Promise.all(
+			targets
+				.concat(mediaTargets)
+				.map(e => {
+					let entry = path.join(dir, e);
+					if (!fs.existsSync(entry)) return;
+					if (fs.statSync(entry).isDirectory()) {
+						let destinationDir = path.join(destination, e);
+						if (image && !preserve && e == path.join(media, image))
+							destinationDir = path.join(destination, media);
+						fs.ensureDirSync(destinationDir);
+						return queue.add(() =>
+							fs.copy(entry, destinationDir, { filter: copyHandler })
+						);
+					} else {
+						return queue.add(() =>
+							fs.copy(entry, path.join(destination, e), { filter: copyHandler })
+						);
+					}
+				})
+				.filter(Boolean)
+		);
 
 		// Post-copy actions
 		await unlock(destination, { quiet: true });

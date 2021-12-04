@@ -35,7 +35,15 @@ const api = async function (
 	{ copy: destination, extract, image = 'screenshot', filter, quiet } = {}
 ) {
 	if (destination)
-		dir = await copy(dir, { destination, image, preserve: false, filter, quiet: true });
+		dir = await copy(dir, {
+			destination,
+			image,
+			preserve: false,
+			marquee: false,
+			video: false,
+			filter,
+			quiet: true
+		});
 
 	// Remove unneeded image files; relocate desired images as appropriate
 	const mediaPath = path.join(path.resolve(dir), process.env.GAMELIST_MEDIA || 'media');
