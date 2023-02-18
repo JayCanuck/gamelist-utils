@@ -29,26 +29,30 @@ const help = function () {
 	process.exit(0);
 };
 
-const api = async function (dir, { output, filter: filterFile, prefix, quiet } = {}) {
+const api = async function (dirs, { output, filter: filterFile, prefix, quiet } = {}) {
 	const gameFilter = filterFile ? new Filter(filterFile) : undefined;
 	const roms = [];
 
-	await gamelist.forEach(dir, (game, provider) => {
-		if (!gameFilter || (gameFilter && gameFilter.test(game, provider))) {
-			if (game.path && game.path[0]) {
-				let romFile = game.path[0];
-				if (prefix) {
-					romFile =
-						prefix.replace(/[\\/]+/g, '/').replace(/\/$/, '') +
-						'/' +
-						path.basename(process.cwd()) +
-						'/' +
-						romFile.replace(/^\.\//, '');
+	await Promise.all(
+		dirs.map(dir =>
+			gamelist.forEach(dir, (game, provider) => {
+				if (!gameFilter || (gameFilter && gameFilter.test(game, provider))) {
+					if (game.path && game.path[0]) {
+						let romFile = game.path[0];
+						if (prefix) {
+							romFile =
+								prefix.replace(/[\\/]+/g, '/').replace(/\/$/, '') +
+								'/' +
+								path.basename(dir) +
+								'/' +
+								romFile.replace(/^\.\//, '');
+						}
+						roms.push(romFile);
+					}
 				}
-				roms.push(romFile);
-			}
-		}
-	});
+			})
+		)
+	);
 
 	let collectionName = filterFile
 		? 'custom-' + system.getName(path.basename(filterFile, path.extname(filterFile))) + '.cfg'

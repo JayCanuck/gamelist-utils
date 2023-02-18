@@ -57,8 +57,9 @@ if (args.multi) {
 
 	// Execute action on target(s)
 	for (let i = 0; i < targets.length; i++) {
-		const target = targets[i];
-		if (!args.quiet && targets.length > 1) console.log('Handling:', target);
+		let target = targets[i];
+		if (!args.quiet && targets.length > 1 && action !== 'collection')
+			console.log('Handling:', target);
 
 		// Special cases adding dynamic options
 		switch (action) {
@@ -69,6 +70,10 @@ if (args.multi) {
 					const sys = path.basename(target);
 					args.destination = path.join(args._[1], sys);
 				}
+				break;
+			case 'collection':
+				// collections uses the multiple targets themselves as a parameter
+				target = targets.splice(0, targets.length);
 				break;
 			case 'folder':
 				args.task = args._[1];
@@ -81,6 +86,7 @@ if (args.multi) {
 			case 'thumbnail':
 			case 'marquee':
 			case 'video':
+			default:
 				args.state = args._[1];
 		}
 		// Invoke API
