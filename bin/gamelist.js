@@ -75,6 +75,7 @@ if (args.multi) {
 				args.folder = args._[2];
 				break;
 			case 'image-type':
+			case 'image-resize':
 				args.type = args._[1];
 				break;
 			case 'thumbnail':

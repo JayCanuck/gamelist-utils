@@ -21,6 +21,7 @@ exportAPIs([
 	'copy',
 	'duplicates',
 	'image-type',
+	'image-resize',
 	'folder',
 	'lock',
 	'playlists',
