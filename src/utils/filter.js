@@ -4,6 +4,7 @@ const JSON5 = require('json5');
 
 const getValue = (game, field) => (Array.isArray(game[field]) ? game[field][0] : game[field]);
 const getMeta = (game, field) => (game.$ ? getValue(game.$, field) : undefined);
+const normalizePath = file => file.replace(/^\.\//, '');
 const testcase = (game, provider, criteria, polarity) =>
 	Object.keys(criteria).every(key => {
 		if (['comment', 'comments'].includes(key)) return true; // ignore comments
@@ -12,6 +13,14 @@ const testcase = (game, provider, criteria, polarity) =>
 		} else if (key === 'id') {
 			const gameID = getMeta(game, 'id');
 			return gameID && (criteria[key] === gameID) === polarity;
+		} else if (key === 'path' || key === 'file') {
+			const value = getValue(game, 'path');
+			return (
+				value &&
+				(normalizePath(criteria.path.toLowerCase()) ===
+					normalizePath(value.toLowerCase())) ===
+					polarity
+			);
 		} else if (key.endsWith('Contains')) {
 			const value = getValue(game, key.replace('Contains', '')).toLowerCase();
 			return value && value.toLowerCase().includes(criteria[key]) === polarity;
