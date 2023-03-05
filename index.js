@@ -28,7 +28,7 @@ exportAPIs([
 	'thumbnail',
 	'marquee',
 	'video',
-	'test',
+	'retroarch',
 	'simplify',
 	'unlock'
 ]);

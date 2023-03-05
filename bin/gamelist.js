@@ -75,6 +75,11 @@ if (args.multi) {
 				// collections uses the multiple targets themselves as a parameter
 				target = targets.splice(0, targets.length);
 				break;
+			case 'retroarch':
+				// retroarch linking is global with argument as target
+				target = args._[1];
+				targets = [target];
+				break;
 			case 'folder':
 				args.task = args._[1];
 				args.folder = args._[2];
