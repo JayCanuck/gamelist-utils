@@ -29,6 +29,7 @@ exportAPIs([
 	'marquee',
 	'video',
 	'retroarch',
+	'es-de',
 	'simplify',
 	'unlock'
 ]);
