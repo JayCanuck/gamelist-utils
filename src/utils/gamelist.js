@@ -2,6 +2,20 @@ const path = require('path');
 const fs = require('fs-extra');
 const { Parser, Builder } = require('xml2js');
 
+const find = function (filepath) {
+	filepath = path.resolve(filepath);
+	if (fs.statSync(filepath).isFile()) {
+		return find(path.dirname(filepath));
+	} else {
+		if (fs.existsSync(path.join(filepath, 'gamelist.xml'))) {
+			return filepath;
+		} else {
+			const parent = path.dirname(filepath);
+			return parent === filepath ? null : find(parent);
+		}
+	}
+};
+
 const read = async function (dir) {
 	const xml = path.join(dir, 'gamelist.xml');
 	if (!fs.existsSync(xml)) return { xml, data: null, provider: null };
@@ -70,4 +84,4 @@ const update = async function (dir, handler) {
 	write(xml, data);
 };
 
-module.exports = { read, write, ensureGames, forEach, update };
+module.exports = { find, read, write, ensureGames, forEach, update };
