@@ -14,6 +14,7 @@ const help = function () {
 	console.log('    gamelist es-de [options]');
 	console.log();
 	console.log('  Options');
+	console.log('    -c, --copy-xml    Copy gamelist.xml rather than symlink');
 	console.log('    -q, --quiet       Quiet console output');
 	console.log('    -m, --multi       Target subdirectories instead of working directory');
 	console.log('                          Comma-separated list or "all" for all');
@@ -23,7 +24,7 @@ const help = function () {
 	process.exit(0);
 };
 
-const api = async function (dir, { quiet } = {}) {
+const api = async function (dir, { 'copy-xml': copyXml, quiet } = {}) {
 	const esUserDir = path.resolve(
 		process.env.ESDE_USERDIR || path.join(os.homedir(), '.emulationstation')
 	);
@@ -49,11 +50,19 @@ const api = async function (dir, { quiet } = {}) {
 			if (!quiet) console.log(`Linking ${system} metadata`);
 			fs.ensureDirSync(esGamelistDir);
 			fs.removeSync(linkXml);
-			fs.symlinkSync(xml, linkXml);
-			if (!quiet)
-				console.log(
-					`\t${system}/gamelist.xml <==> ~/.emulationstation/gamelists/${system}/gamelist.xml`
-				);
+			if (copyXml) {
+				fs.copySync(xml, linkXml);
+				if (!quiet)
+					console.log(
+						`\t${system}/gamelist.xml >> ~/.emulationstation/gamelists/${system}/gamelist.xml`
+					);
+			} else {
+				fs.symlinkSync(xml, linkXml);
+				if (!quiet)
+					console.log(
+						`\t${system}/gamelist.xml <==> ~/.emulationstation/gamelists/${system}/gamelist.xml`
+					);
+			}
 			if (fs.existsSync(mediaDir)) {
 				const esDownloadedMediaDir = path.join(esUserDir, esMedia, system);
 				fs.ensureDirSync(esDownloadedMediaDir);
