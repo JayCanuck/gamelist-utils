@@ -70,7 +70,7 @@ const api = async function (
 				if (entries.length === 1) {
 					const ext = path.extname(entries[0].entryName);
 					const base = path.basename(f, '.zip');
-					zip.extractEntryTo(entries[0].entryName, dir, false, true, base + ext);
+					zip.extractEntryTo(entries[0].entryName, dir, false, true, false, base + ext);
 					fs.removeSync(f);
 				}
 			});
