@@ -17,7 +17,6 @@ exportAPIs([
 	// Could be done programmably, but staticly set instead as a signifier of intent
 	'backup',
 	'collection',
-	'convert',
 	'copy',
 	'duplicates',
 	'image-type',
@@ -28,6 +27,7 @@ exportAPIs([
 	'thumbnail',
 	'marquee',
 	'video',
+	'simplemenu',
 	'retroarch',
 	'es-de',
 	'simplify',

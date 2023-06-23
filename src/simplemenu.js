@@ -13,10 +13,10 @@ const options = {
 
 const help = function () {
 	console.log('  Usage');
-	console.log('    gamelist convert [options]');
+	console.log('    gamelist simplemenu [options]');
 	console.log();
 	console.log('  Options');
-	console.log('    -c, --copy        Copy converted files to this destination path');
+	console.log('    -c, --copy        Copy resulting files to this destination path');
 	console.log('    -e, --extract     Extract roms from zip files');
 	console.log('                          Only works with single-file rom types');
 	console.log('    -i, --image       Use specific image type');

@@ -68,7 +68,7 @@ This utility contains a number of actions that can be executed on gamelist.xml r
 * `lock` : On Windows systems, sets the `gamelist.xml` as readonly. This is handly to prevent unexpected changes.
 * `unlock` : On Windows systems, removes readonly attribute from the `gamelist.xml` file.
 * `simplify` : Simplifies a `gamelist.xml`.  Removes description values (usually significantly reducing the `gamelist.xml` memory size and load time), along with options to copy the simplified output and remove unused media asset files.
-* `convert` : Converts a romset into a basic undecorated format common in minimal system and third party frontends. Specifically, this can optionally unzip roms, removes `gamelist.xml` and ensures only the desired assets are included, and are included flatly within `./media` under the same name as the roms. This is ideal for [SimpleMenu](https://github.com/fgl82/simplemenu/) on OpenDingux.
+* `simplement` : Converts a romset into a basic un-decorated format ideal for [SimpleMenu](https://github.com/fgl82/simplemenu/) on OpenDingux. Specifically, this command optionally unzips roms, removes `gamelist.xml` and ensures only the desired assets are included, and are included flatly within `./media` under the same name as the roms.
 * `retroarch` : Scans a RetroArch location's playlist files and symlinks in any associated media files. Supports updating game names in playlist from `gamelist.xml`.
 * `es-de` : Symlinks `gamelist.xml` file and associated scraped media directories to the EmulationStation-DE downloaded media location.
 
