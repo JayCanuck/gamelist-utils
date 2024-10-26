@@ -4,7 +4,7 @@
 // May require admin/special privileges to symlink
 const path = require('path');
 const fs = require('fs-extra');
-const { find: findXml, forEach: forEachGame } = require('./utils/gamelist');
+const { find: findXml, forEach: forEachGame, gameName } = require('./utils/gamelist');
 
 const options = {
 	boolean: ['quiet', 'help'],
@@ -63,10 +63,7 @@ const api = async function (dir, { update, quiet } = {}) {
 								sysDirs.map(async sysDir =>
 									forEachGame(sysDir, game => {
 										gameNames[path.resolve(path.join(sysDir, game.path[0]))] =
-											game.name[0]
-												.replace(/["\n\r]/g, '')
-												.replace(/\s+/g, ' ')
-												.trim();
+											gameName(game);
 									})
 								)
 							);

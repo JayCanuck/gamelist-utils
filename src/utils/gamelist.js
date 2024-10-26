@@ -84,4 +84,11 @@ const update = async function (dir, handler) {
 	write(xml, data);
 };
 
-module.exports = { find, read, write, ensureGames, forEach, update };
+const gameName = function (game) {
+	return game.name[0]
+		.replace(/["\n\r]/g, '')
+		.replace(/\s+/g, ' ')
+		.trim();
+};
+
+module.exports = { find, read, write, ensureGames, gameName, forEach, update };
