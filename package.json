@@ -1,15 +1,17 @@
 {
   "name": "gamelist-utils",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "description": "A toolbox for EmulationStation gamelist.xml romsets",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
-    "gamelist": "./bin/gamelist.js"
+    "gamelist": "./dist/cli.js"
   },
   "scripts": {
     "lint": "eslint .",
     "fix": "eslint . --fix",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -34,31 +36,45 @@
     "url": "https://github.com/JayCanuck/gamelist-utils/issues"
   },
   "homepage": "https://github.com/JayCanuck/gamelist-utils#readme",
+  "files": [
+    "dist"
+  ],
   "prettier": {
     "printWidth": 100,
-    "tabWidth": 4,
-    "useTabs": true,
+    "tabWidth": 2,
+    "useTabs": false,
     "singleQuote": true,
     "quoteProps": "preserve",
     "trailingComma": "none",
     "arrowParens": "avoid"
   },
   "dependencies": {
-    "adm-zip": "^0.5.10",
-    "dotenv": "^16.0.3",
-    "fs-extra": "^11.1.0",
-    "fswin": "^3.23.119",
+    "adm-zip": "^0.5.16",
+    "dotenv": "^16.4.5",
+    "fs-extra": "^11.2.0",
+    "fswin": "^3.24.829",
     "json5": "^2.2.3",
     "minimist": "^1.2.8",
-    "p-queue-compat": "^1.0.219",
-    "sharp": "^0.31.3",
-    "xml2js": "^0.4.23"
+    "p-queue-compat": "^1.0.227",
+    "sharp": "^0.33.5",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "eslint": "^8.34.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-prettier": "^4.2.1",
-    "prettier": "^2.8.4"
+    "@eslint/js": "^9.13.0",
+    "@types/adm-zip": "^0.5.5",
+    "@types/eslint__js": "^8.42.3",
+    "@types/fs-extra": "^11.0.4",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^22.8.1",
+    "@types/xml2js": "^0.4.14",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.11.0"
   }
 }
