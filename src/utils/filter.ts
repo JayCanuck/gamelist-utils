@@ -1,7 +1,8 @@
 import path from 'path';
+import { pathToFileURL } from 'url';
 import fs from 'fs-extra';
 import JSON5 from 'json5';
-import { Entry, Field, Provider } from '../gamelist-types';
+import type { Entry, Field, Provider } from '../gamelist-types.js';
 
 const getValue = (game: Entry, field: Field | string) =>
   Array.isArray(game[field]) ? game[field][0] : game[field];
@@ -30,10 +31,10 @@ const testcase = (
       );
     } else if (key.endsWith('Contains')) {
       const value = (getValue(game, key.replace('Contains', '')) || '').toLowerCase();
-      return value && value.toLowerCase().includes(criteria[key]) === polarity;
+      return value && value.toLowerCase().includes(criteria[key]!) === polarity;
     } else {
       const value = getValue(game, key);
-      return value && (criteria[key].toLowerCase() === value.toLowerCase()) === polarity;
+      return value && (criteria[key]!.toLowerCase() === value.toLowerCase()) === polarity;
     }
   });
 
@@ -66,8 +67,9 @@ export class Filter {
   static async load(file: string) {
     let value: FilterData;
 
-    if (file.endsWith('.js')) {
-      value = await import(path.resolve(file));
+    if (file.endsWith('.js') || file.endsWith('.cjs') || file.endsWith('.mjs')) {
+      const script = await import(pathToFileURL(path.resolve(file)).href);
+      value = script.default || script;
     } else {
       value = JSON5.parse(fs.readFileSync(file, { encoding: 'utf8' }));
     }

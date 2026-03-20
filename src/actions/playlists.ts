@@ -2,13 +2,15 @@
 import path from 'path';
 import AdmZip from 'adm-zip';
 import fs from 'fs-extra';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
 
 export const name = 'playlists';
 
 export const options = {
-  boolean: ['extract', 'keep', 'quiet', 'help'],
+  boolean: ['extract', 'keep', 'quiet', 'help'] as const,
   alias: { e: 'extract', k: 'keep', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -27,13 +29,10 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface PlaylistsOptions {
-  extract?: boolean;
-  keep?: boolean;
-  quiet?: boolean;
-}
-
-export const api = async (dir: string, { extract, keep, quiet }: PlaylistsOptions = {}) => {
+export const api = async (
+  dir: string,
+  { extract, keep, quiet }: APIOptions<typeof options> = {}
+) => {
   const ignore = (process.env.GAMELIST_PLAYLIST_IGNORE || 'media;hacks').split(';');
   if (!quiet) console.log('Generating playlists for', path.basename(dir));
   fs.readdirSync(dir)
@@ -45,9 +44,11 @@ export const api = async (dir: string, { extract, keep, quiet }: PlaylistsOption
         if (fullPath.endsWith('.zip') && extract) {
           const zip = new AdmZip(fullPath);
           const entry = zip.getEntries()[0];
-          zip.extractEntryTo(entry.entryName, gameDir, false, true);
-          if (!keep) fs.removeSync(fullPath);
-          fullPath = path.join(gameDir, path.basename(entry.entryName));
+          if (entry) {
+            zip.extractEntryTo(entry.entryName, gameDir, false, true);
+            if (!keep) fs.removeSync(fullPath);
+            fullPath = path.join(gameDir, path.basename(entry.entryName));
+          }
         }
         return fullPath;
       });

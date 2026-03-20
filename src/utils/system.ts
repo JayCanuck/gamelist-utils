@@ -41,5 +41,3 @@ export const getName = (system: string) =>
     .split(/[\s-]+/)
     .map(e => mixedCase(e) || (isAllUpper(e) ? e.toUpperCase() : capitalize(e)))
     .join(' ');
-
-module.exports = { getName };

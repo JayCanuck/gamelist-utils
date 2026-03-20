@@ -4,13 +4,19 @@
   "description": "A toolbox for EmulationStation gamelist.xml romsets",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "bin": {
     "gamelist": "./dist/cli.js"
   },
   "scripts": {
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\"",
+    "build": "tsc",
     "lint": "eslint .",
     "fix": "eslint . --fix",
-    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "check": "npm run lint && npm run typecheck && npm run test",
     "prepare": "npm run build"
   },
   "repository": {
@@ -37,8 +43,14 @@
   },
   "homepage": "https://github.com/JayCanuck/gamelist-utils#readme",
   "files": [
-    "dist"
+    "dist",
+    "assets",
+    "LICENSE",
+    "README.md"
   ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "prettier": {
     "printWidth": 100,
     "tabWidth": 2,
@@ -50,18 +62,22 @@
   },
   "dependencies": {
     "adm-zip": "^0.5.16",
+    "camelize": "^1.0.1",
     "dotenv": "^16.4.5",
     "fs-extra": "^11.2.0",
     "fswin": "^3.24.829",
+    "inquirer-sortable-list": "^1.1.0",
     "json5": "^2.2.3",
     "minimist": "^1.2.8",
-    "p-queue-compat": "^1.0.227",
+    "muos": "^1.0.2",
+    "p-queue": "^8.0.1",
     "sharp": "^0.33.5",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@types/adm-zip": "^0.5.5",
+    "@types/camelize": "^1.0.1",
     "@types/eslint__js": "^8.42.3",
     "@types/fs-extra": "^11.0.4",
     "@types/minimist": "^1.2.5",
@@ -75,6 +91,8 @@
     "globals": "^15.11.0",
     "prettier": "^3.3.3",
     "typescript": "^5.6.3",
-    "typescript-eslint": "^8.11.0"
+    "typescript-eslint": "^8.11.0",
+    "vitest": "^3.2.1",
+    "@vitest/coverage-v8": "^3.2.1"
   }
 }

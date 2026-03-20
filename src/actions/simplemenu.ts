@@ -3,17 +3,19 @@
 import path from 'path';
 import AdmZip from 'adm-zip';
 import fs from 'fs-extra';
-import { MediaImage } from '../gamelist-types';
-import { api as copy } from './copy';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import type { MediaImage } from '../gamelist-types.js';
+import { api as copy } from './copy.js';
 
 export const name = 'simplemenu';
 
 export const options = {
-  boolean: ['extract', 'quiet', 'help'],
-  string: ['copy', 'image', 'filter'],
+  boolean: ['extract', 'quiet', 'help'] as const,
+  string: ['copy', 'image', 'filter'] as const,
   default: { image: 'screenshot' as MediaImage },
   alias: { c: 'copy', e: 'extract', i: 'image', f: 'filter', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -35,14 +37,6 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface SimpleMenuOptions {
-  copy?: string;
-  extract?: boolean;
-  image?: MediaImage;
-  filter?: string;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
   {
@@ -51,7 +45,7 @@ export const api = async (
     image = options.default.image,
     filter,
     quiet
-  }: SimpleMenuOptions = {}
+  }: APIOptions<typeof options> = {}
 ) => {
   if (destination)
     dir = await copy(dir, {
@@ -87,9 +81,9 @@ export const api = async (
         const zip = new AdmZip(f);
         const entries = zip.getEntries();
         if (entries.length === 1) {
-          const ext = path.extname(entries[0].entryName);
+          const ext = path.extname(entries[0]!.entryName);
           const base = path.basename(f, '.zip');
-          zip.extractEntryTo(entries[0].entryName, dir, false, true, false, base + ext);
+          zip.extractEntryTo(entries[0]!.entryName, dir, false, true, false, base + ext);
           fs.removeSync(f);
         }
       });

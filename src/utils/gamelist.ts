@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs-extra';
 import { Builder, Parser } from 'xml2js';
-import { Entry, GameList, GameListEnsured, Provider } from '../gamelist-types';
+import type { Entry, GameList, GameListEnsured, Provider } from '../gamelist-types.js';
 
 export const find = function (filepath: string): string | null {
   filepath = path.resolve(filepath);
@@ -69,11 +69,13 @@ export const ensureGames = function (data: GameList = {}) {
 
 export const forEach = async function (
   dir: string,
-  handler: (game: Entry, provider: Provider, index: number, list: Entry[]) => void
+  handler: (game: Entry, provider: Provider, index: number, list: Entry[]) => Promise<void> | void
 ) {
   const { data, provider } = await read(dir);
   if (!data || !data.gameList || !Array.isArray(data.gameList.game)) return;
-  data.gameList.game.forEach((game, ...rest) => handler(game, provider, ...rest));
+  for (let i = 0; i < data.gameList.game.length; i++) {
+    await handler(data.gameList.game[i]!, provider, i, data.gameList.game);
+  }
 };
 
 export const update = async function (
@@ -86,9 +88,17 @@ export const update = async function (
   await write(xml, data);
 };
 
-export const gameName = function (game: Entry) {
+export const jsonSafeGameName = function (game: Entry) {
   return (game?.name?.[0] || '')
     .replace(/["\n\r]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+export const fileSafeGameName = function (game: Entry) {
+  return (game?.name?.[0] || '')
+    .replace(/["\n\r*\\/<>|?]/g, '')
+    .replace(/\s*:\s*/g, ' - ')
     .replace(/\s+/g, ' ')
     .trim();
 };

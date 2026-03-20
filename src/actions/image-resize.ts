@@ -1,14 +1,18 @@
 // Resizes image assets
 import path from 'path';
 import fs from 'fs-extra';
-import sharp, { FitEnum } from 'sharp';
-import { MediaImage } from '../gamelist-types';
+import type { Opts } from 'minimist';
+import type { FitEnum } from 'sharp';
+import sharp from 'sharp';
+import type { APIOptions } from '../api-types.js';
+import type { MediaImage } from '../gamelist-types.js';
+import { resolveMediaEnv } from '../utils/media.js';
 
 export const name = 'image-resize';
 
 export const options = {
-  boolean: ['delete', 'quiet', 'help'],
-  string: ['source', 'width', 'height', 'fit'],
+  boolean: ['delete', 'quiet', 'help'] as const,
+  string: ['source', 'width', 'height', 'fit'] as const,
   default: { width: '320', height: '320', 'fit': 'contain' as keyof FitEnum },
   alias: {
     iw: 'width',
@@ -17,7 +21,7 @@ export const options = {
     q: 'quiet',
     h: 'help'
   }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -43,14 +47,6 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface ImageResizeOptions {
-  type: MediaImage;
-  width?: string;
-  height?: string;
-  fit?: keyof FitEnum;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
   {
@@ -59,9 +55,9 @@ export const api = async (
     height = options.default.height,
     fit = options.default.fit,
     quiet
-  }: ImageResizeOptions
+  }: APIOptions<typeof options> & { type: MediaImage }
 ) => {
-  const media = process.env.GAMELIST_MEDIA || 'media';
+  const { media } = resolveMediaEnv();
   const imageDir = path.join(dir, media, type);
 
   if (fs.existsSync(imageDir) && fs.statSync(imageDir).isDirectory()) {

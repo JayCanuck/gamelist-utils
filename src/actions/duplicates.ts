@@ -2,14 +2,16 @@
 // Relies on game ID values being assigned by Skraper (http://skraper.net/)
 import path from 'path';
 import fs from 'fs-extra';
-import { forEach } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { forEach } from '../utils/gamelist.js';
 
 export const name = 'duplicates';
 
 export const options = {
-  boolean: ['quiet', 'help'],
+  boolean: ['quiet', 'help'] as const,
   alias: { m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -25,11 +27,7 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface DuplicatesOptions {
-  quiet?: boolean;
-}
-
-export const api = async (dir: string, { quiet }: DuplicatesOptions = {}) => {
+export const api = async (dir: string, { quiet }: APIOptions<typeof options> = {}) => {
   const missingFile = path.join(dir, 'gamelist.Missing.Serial.txt');
   const missing: { id: string; duplicates: string[] }[] = [];
   const possibly: { name: string; duplicates: string[] }[] = [];
@@ -40,10 +38,11 @@ export const api = async (dir: string, { quiet }: DuplicatesOptions = {}) => {
     }
   });
   Object.keys(found).forEach(key => {
-    if (key !== '0' && found[key].length > 1) {
-      missing.push({ id: key, duplicates: found[key] });
+    const entries = found[key]!;
+    if (key !== '0' && entries.length > 1) {
+      missing.push({ id: key, duplicates: entries });
       if (!quiet) console.log('Duplicates for game id', key);
-      if (!quiet) console.log('\t' + found[key].join('\n\t'));
+      if (!quiet) console.log('\t' + entries.join('\n\t'));
     }
   });
 
@@ -52,7 +51,7 @@ export const api = async (dir: string, { quiet }: DuplicatesOptions = {}) => {
     const list = fs
       .readFileSync(missingFile, { encoding: 'utf8' })
       .split(/[\n\r]+/)
-      .map(l => l.split('|')[0])
+      .map(l => l.split('|')[0]!)
       .filter(l => Boolean(l));
     const missing = list.reduce(
       (acc, game) => {
@@ -64,10 +63,11 @@ export const api = async (dir: string, { quiet }: DuplicatesOptions = {}) => {
       {} as { [key: string]: string[] }
     );
     Object.keys(missing).forEach(name => {
-      if (missing[name].length > 1) {
-        possibly.push({ name, duplicates: missing[name] });
+      const entries = missing[name]!;
+      if (entries.length > 1) {
+        possibly.push({ name, duplicates: entries });
         if (!quiet) console.log('Potential duplicates for game "' + name + '"');
-        if (!quiet) console.log('\t' + missing[name].join('\n\t'));
+        if (!quiet) console.log('\t' + entries.join('\n\t'));
       }
     });
   }

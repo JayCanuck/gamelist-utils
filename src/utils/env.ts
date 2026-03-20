@@ -7,7 +7,7 @@ let loaded = false;
 export const load = function () {
   if (loaded) return;
   [
-    path.join(__dirname, '.env'),
+    path.join(import.meta.dirname, '.env'),
     `.env.${process.env.NODE_ENV || 'development'}.local`,
     `.env.${process.env.NODE_ENV || 'development'}`,
     '.env'

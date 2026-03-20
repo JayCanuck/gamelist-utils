@@ -1,22 +1,31 @@
 // Copies romset directory, with a variety of transformational options.
 import path from 'path';
 import fs from 'fs-extra';
-import PQueue from 'p-queue-compat';
-import { MediaImage } from '../gamelist-types';
-import { Filter } from '../utils/filter';
-import * as gamelist from '../utils/gamelist';
-import { api as setImageType } from './image-type';
-import { api as unlock } from './unlock';
-import { api as updateVideo } from './video';
+import type { Opts } from 'minimist';
+import PQueue from 'p-queue';
+import type { APIOptions } from '../api-types.js';
+import type { MediaImage } from '../gamelist-types.js';
+import { Filter } from '../utils/filter.js';
+import * as gamelist from '../utils/gamelist.js';
+import { resolveMediaEnv } from '../utils/media.js';
+import { api as setImageType } from './image-type.js';
+import { api as unlock } from './unlock.js';
+import { api as updateVideo } from './video.js';
 
 export const name = 'copy';
 
 export const options = {
-  boolean: ['preserve', 'marquee', 'video', 'quiet', 'help'],
-  string: ['image', 'filter'],
-  default: { preserve: true, manual: false, marquee: true, video: true },
+  boolean: ['preserve', 'marquee', 'video', 'quiet', 'help'] as const,
+  string: ['image', 'filter'] as const,
+  default: {
+    preserve: true,
+    manual: false,
+    marquee: true,
+    video: true,
+    image: undefined as MediaImage | undefined
+  },
   alias: { i: 'image', pdf: 'manual', f: 'filter', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -42,17 +51,6 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface CopyOptions {
-  destination: string;
-  image: MediaImage;
-  preserve?: boolean;
-  manual?: boolean;
-  marquee?: boolean;
-  video?: boolean;
-  filter?: string;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
   {
@@ -64,13 +62,10 @@ export const api = async (
     video = options.default.video,
     filter: filterFile,
     quiet
-  }: CopyOptions
+  }: APIOptions<typeof options> & { destination: string }
 ) => {
   const xml = 'gamelist.xml';
-  const media = process.env.GAMELIST_MEDIA || 'media';
-  const wheel = process.env.GAMELIST_MARQUEE || 'wheel';
-  const snap = process.env.GAMELIST_SNAP || 'snap';
-  const manual = process.env.GAMELIST_MANUAL || 'manual';
+  const { media, marquee: wheel, snap, manual } = resolveMediaEnv();
   const gameFilter = filterFile ? await Filter.load(filterFile) : undefined;
 
   if (destination && fs.statSync(dir).isDirectory()) {
@@ -130,7 +125,7 @@ export const api = async (
       .filter(e => {
         switch (e) {
           case image:
-            return fs.statSync(path.join(mediaPath, image)).isDirectory();
+            return !image || fs.statSync(path.join(mediaPath, image)).isDirectory();
           case manual:
             return Boolean(pdfs);
           case wheel:

@@ -3,17 +3,16 @@
 'use strict';
 
 import path from 'path';
+import camelize from 'camelize';
 import fs from 'fs-extra';
-import minimist from 'minimist';
-import packageJson from '../package.json';
-import * as gamelistUtils from './index';
+import minimist, { type ParsedArgs } from 'minimist';
+import * as gamelistUtils from './index.js';
 
 interface Action {
   name: string;
   options: minimist.Opts;
   help: (code?: number) => void;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  api: Function;
+  api: (target: string | string[], opts: Record<string, unknown>) => Promise<unknown>;
 }
 
 // Uncaught error handler
@@ -32,10 +31,13 @@ const actionMap = (Object.keys(gamelistUtils) as (keyof typeof gamelistUtils)[])
 
 // Detect action
 const actionArg = process.argv[2];
-const action = actionMap[actionArg];
+const action = actionArg ? actionMap[actionArg] : undefined;
 
 // CLI version query
-if (['-v', '--version'].includes(actionArg)) {
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(import.meta.dirname, '../package.json'), { encoding: 'utf8' })
+);
+if (actionArg === '-v' || actionArg === '--version') {
   console.log('gamelist-utils');
   console.log('    Version ' + packageJson.version);
   process.exit(0);
@@ -43,7 +45,7 @@ if (['-v', '--version'].includes(actionArg)) {
 
 // Invalid/missing action, display CLI help
 if (!action) {
-  if (!['-h', '--help'].includes(actionArg)) {
+  if (actionArg !== '-h' && actionArg !== '--help') {
     console.log('Error: action unknown.');
     console.log();
   }
@@ -62,36 +64,47 @@ if (!action) {
 }
 
 // Parse arguments
-const args = minimist(process.argv.slice(2), action.options);
+const { _: args, ...parsedOpts } = minimist(process.argv.slice(2), action.options);
+const params: ParsedArgs = { _: args, ...camelize(parsedOpts) };
 
 // Resolve target(s)
 let targets = [process.cwd()];
-if (args.multi) {
+if (params.multi) {
   targets = fs
-    .readdirSync(targets[0])
-    .filter(e => [true, 'all'].includes(args.multi) || args.multi.split(',').includes(e))
-    .map(e => path.join(targets[0], e))
+    .readdirSync(targets[0]!)
+    .filter(e => [true, 'all'].includes(params.multi) || params.multi.split(',').includes(e))
+    .map(e => path.join(targets[0]!, e))
     .filter(e => fs.statSync(e).isDirectory());
 }
 
 (async () => {
   // Handle action-specific help
-  if (args.help) action.help();
+  if (params.help) action.help();
 
   // Execute action on target(s)
   for (let i = 0; i < targets.length; i++) {
-    let target: string | string[] = targets[i];
-    if (!args.quiet && targets.length > 1 && action.name !== 'collection')
+    let target: string | string[] = targets[i]!;
+    if (!params.quiet && targets.length > 1 && action.name !== 'collection')
       console.log('Handling:', target);
 
     // Special cases adding dynamic options
     switch (action.name) {
-      case 'copy':
-        if (targets.length === 1) {
-          args.destination = args._[1];
+      case 'muos':
+        if (params.multi) delete params.system;
+        if (!params.multi) {
+          params.destination = params._[1];
         } else {
-          const sys = path.basename(target);
-          args.destination = path.join(args._[1], sys);
+          const sys = path.basename(target as string);
+          params.destination = path.join(params._[1]!, sys);
+        }
+        break;
+      case 'onion':
+      case 'copy':
+        if (!params.multi) {
+          params.destination = params._[1];
+        } else {
+          const sys = path.basename(target as string);
+          params.destination = path.join(params._[1]!, sys);
         }
         break;
       case 'collection':
@@ -100,30 +113,31 @@ if (args.multi) {
         break;
       case 'retroarch':
         // retroarch linking is global with argument as target
-        target = args._[1];
-        targets = [target];
+        target = params._[1]!;
+        targets = [target as string];
         break;
       case 'folder':
-        args.task = args._[1];
-        args.folder = args._[2];
+        params.task = params._[1];
+        params.folder = params._[2];
         break;
       case 'image-type':
       case 'image-resize':
-        args.type = args._[1];
+        params.type = params._[1];
         break;
       case 'thumbnail':
       case 'marquee':
       case 'video':
       default:
-        args.state = args._[1];
+        params.state = params._[1];
     }
     // Invoke API
     try {
-      await action.api(target, args);
+      await action.api(target, params);
     } catch (e) {
       console.error('ERROR:', (e as Error).message || e);
+      console.log(e);
     }
 
-    if (!args.quiet && targets.length > 1) console.log();
+    if (!params.quiet && targets.length > 1) console.log();
   }
 })();

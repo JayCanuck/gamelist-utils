@@ -2,13 +2,15 @@
 import path from 'path';
 import fs from 'fs-extra';
 import fswin from 'fswin';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
 
 export const name = 'lock';
 
 export const options = {
-  boolean: ['quiet', 'help'],
+  boolean: ['quiet', 'help'] as const,
   alias: { m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -24,11 +26,7 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface LockOptions {
-  quiet?: boolean;
-}
-
-export const api = async (dir: string, { quiet }: LockOptions = {}) => {
+export const api = async (dir: string, { quiet }: APIOptions<typeof options> = {}) => {
   if (process.platform === 'win32') {
     const xml = path.join(dir, 'gamelist.xml');
     if (fs.existsSync(xml)) {

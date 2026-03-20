@@ -1,14 +1,17 @@
 // Adds or removes video tags from game entries and optionally delete video files.
 import path from 'path';
 import fs from 'fs-extra';
-import { update } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { update } from '../utils/gamelist.js';
+import { relativeMediaPath, resolveMediaEnv, romBasename } from '../utils/media.js';
 
 export const name = 'video';
 
 export const options = {
-  boolean: ['delete', 'quiet', 'help'],
+  boolean: ['delete', 'quiet', 'help'] as const,
   alias: { d: 'delete', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -29,18 +32,13 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface VideoOptions {
-  state?: 'enable' | 'enabled' | 'disable' | 'disabled';
-  delete?: boolean;
-  quiet?: boolean;
-}
+type VideoState = 'enable' | 'enabled' | 'disable' | 'disabled';
 
 export const api = async (
   dir: string,
-  { state = 'enable', delete: remove, quiet }: VideoOptions = {}
+  { state = 'enable', delete: remove, quiet }: APIOptions<typeof options> & { state: VideoState }
 ) => {
-  const media = process.env.GAMELIST_MEDIA || 'media';
-  const snap = process.env.GAMELIST_SNAP || 'snap';
+  const { media, snap } = resolveMediaEnv();
   const snapDir = path.join(dir, media, snap);
   let logStart = '';
   switch (state) {
@@ -49,12 +47,7 @@ export const api = async (
       logStart = 'Added all detected video metadata for';
       await update(dir, game => {
         if (game && game.path && game.path[0]) {
-          const rom = game.path[0].replace(/^\.\//, '');
-          const relVideo =
-            './' +
-            path
-              .join(media, snap, path.basename(rom, path.extname(rom)) + '.mp4')
-              .replace(/[\\/]+/g, '/');
+          const relVideo = relativeMediaPath(media, snap, romBasename(game.path[0]), '.mp4');
           if (fs.existsSync(path.join(dir, relVideo))) game.video = [relVideo];
         }
       });

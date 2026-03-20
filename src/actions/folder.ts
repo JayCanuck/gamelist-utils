@@ -1,15 +1,17 @@
 // Adds or removes folder entries and their corresponding games
 import path from 'path';
 import fs from 'fs-extra';
-import * as gamelist from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import * as gamelist from '../utils/gamelist.js';
 
 export const name = 'folder';
 
 export const options = {
-  boolean: ['desc', 'quiet', 'help'],
-  string: ['name', 'desc', 'icon'],
+  boolean: ['desc', 'quiet', 'help'] as const,
+  string: ['name', 'desc', 'icon'] as const,
   alias: { n: 'name', d: 'desc', i: 'icon', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -43,18 +45,18 @@ const getTitle = (name: string) =>
     .map(n => cap(n))
     .join(' ');
 
-interface FolderOptions {
-  task: 'add' | 'install' | 'remove' | 'uninstall';
-  folder: string;
-  name?: string;
-  desc?: string;
-  icon?: string;
-  quiet?: boolean;
-}
+type FolderTask = 'add' | 'install' | 'remove' | 'uninstall';
 
 export const api = async (
   dir: string,
-  { task, folder, name, desc, icon, quiet }: FolderOptions
+  {
+    task,
+    folder,
+    name,
+    desc,
+    icon,
+    quiet
+  }: APIOptions<typeof options> & { task: FolderTask; folder: string }
 ) => {
   if (icon && !fs.existsSync(icon)) throw new Error('Invalid icon. File not found');
   const media = process.env.GAMELIST_MEDIA || 'media';
@@ -89,10 +91,9 @@ export const api = async (
           // update any of the filepaths to be relative to the root directory
           // rather than the folder directory
           ['path', 'image', 'thumbnail', 'marquee', 'video'].forEach(asset => {
-            if (folderGame[asset] && folderGame[asset][0]) {
-              folderGame[asset][0] = normalize(
-                path.relative(dir, path.join(folderDir, folderGame[asset][0]))
-              );
+            const value = folderGame[asset];
+            if (value && value[0]) {
+              value[0] = normalize(path.relative(dir, path.join(folderDir, value[0])));
             }
           });
           // look for existing entries
@@ -119,15 +120,16 @@ export const api = async (
           });
           fIndex = mainData.gameList.folder.length - 1;
           // use default icon
-          icon = path.join(__dirname, 'assets', 'folder.png');
+          icon = path.join(import.meta.dirname, '../../assets/folder.png');
         }
         // Apply optional metadata/customizations
-        if (name) mainData.gameList.folder[fIndex].name = [name];
-        if (desc) mainData.gameList.folder[fIndex].desc = [desc];
+        const folderEntry = mainData.gameList.folder[fIndex]!;
+        if (name) folderEntry.name = [name];
+        if (desc) folderEntry.desc = [desc];
         if (icon) {
           const folderIcon = path.join(dir, folderMedia, folderBase + '.png');
           fs.copySync(icon, folderIcon);
-          mainData.gameList.folder[fIndex].image = ['./' + folderMedia + '/' + folderBase + '.png'];
+          folderEntry.image = ['./' + folderMedia + '/' + folderBase + '.png'];
         }
         // save xml data
         await gamelist.write(xml, mainData);
@@ -147,13 +149,11 @@ export const api = async (
             e => !normalize(e.path[0]).startsWith(folderRel + '/')
           );
           // remove folder assets
+          const folderEntry = mainData.gameList.folder[index]!;
           ['image', 'thumbnail'].forEach(asset => {
-            if (
-              mainData.gameList.folder &&
-              mainData.gameList.folder[index][asset] &&
-              mainData.gameList.folder[index][asset].length > 0
-            ) {
-              fs.removeSync(path.join(dir, mainData.gameList.folder[index][asset][0]));
+            const value = folderEntry[asset];
+            if (value && value.length > 0) {
+              fs.removeSync(path.join(dir, value[0]!));
             }
           });
           // delete <system>/media/folders if empty

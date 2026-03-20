@@ -2,16 +2,19 @@
 // Helps remove bulky, unneeded, and unused metadata and files.
 import path from 'path';
 import fs from 'fs-extra';
-import { update } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { update } from '../utils/gamelist.js';
+import { resolveMediaEnv } from '../utils/media.js';
 
 export const name = 'simplify';
 
 export const options = {
-  boolean: ['keep-desc', 'quiet', 'help'],
-  string: ['copy', 'image'],
+  boolean: ['keep-desc', 'quiet', 'help'] as const,
+  string: ['copy', 'image'] as const,
   default: { unused: true, video: true },
   alias: { k: 'keep-desc', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -30,19 +33,11 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface SimplifyOptions {
-  'keep-desc'?: boolean;
-  unused?: boolean;
-  video?: boolean;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
-  { 'keep-desc': keepDesc, unused, video, quiet }: SimplifyOptions = {}
+  { keepDesc, unused, video, quiet }: APIOptions<typeof options> = {}
 ) => {
-  const media = process.env.GAMELIST_MEDIA || 'media';
-  const snap = process.env.GAMELIST_SNAP || 'snap';
+  const { media, snap } = resolveMediaEnv();
   const mediaPath = path.join(dir, media);
   const snapDir = path.join(dir, media, snap);
   const usedMedia: string[] = [];

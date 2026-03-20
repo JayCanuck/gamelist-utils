@@ -1,17 +1,19 @@
 // Creates a rom collection
 import path from 'path';
 import fs from 'fs-extra';
-import { Filter } from '../utils/filter';
-import * as gamelist from '../utils/gamelist';
-import * as system from '../utils/system';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { Filter } from '../utils/filter.js';
+import * as gamelist from '../utils/gamelist.js';
+import * as system from '../utils/system.js';
 
 export const name = 'collection';
 
 export const options = {
-  boolean: ['quiet', 'help'],
-  string: ['filter', 'output', 'path'],
+  boolean: ['quiet', 'help'] as const,
+  string: ['filter', 'output', 'path', 'prefix'] as const,
   alias: { f: 'filter', o: 'output', p: 'prefix', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -31,16 +33,9 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface CollectionOptions {
-  filter?: string;
-  output?: string;
-  prefix?: string;
-  quiet?: boolean;
-}
-
 export const api = async (
   dirs: string[],
-  { output, filter: filterFile, prefix, quiet }: CollectionOptions = {}
+  { output, filter: filterFile, prefix, quiet }: APIOptions<typeof options> = {}
 ) => {
   const gameFilter = filterFile ? await Filter.load(filterFile) : undefined;
   const roms: string[] = [];

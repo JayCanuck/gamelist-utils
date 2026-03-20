@@ -3,15 +3,20 @@
 import os from 'os';
 import path from 'path';
 import fs from 'fs-extra';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { resolveMediaEnv } from '../utils/media.js';
 
 export const name = 'es-de';
 
+type ESDEAction = 'link' | 'move' | 'copy';
+
 export const options = {
-  boolean: ['quiet', 'help'],
-  string: ['action', 'config'],
-  default: { action: 'link' as const, config: path.join(os.homedir(), '.emulationstation') },
+  boolean: ['quiet', 'help'] as const,
+  string: ['action', 'config'] as const,
+  default: { action: 'link' as ESDEAction, config: path.join(os.homedir(), '.emulationstation') },
   alias: { a: 'action', c: 'config', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -32,29 +37,28 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface ESDEOptions {
-  action?: 'link' | 'move' | 'copy';
-  config?: string;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
-  { action = options.default.action, config = options.default.config, quiet }: ESDEOptions = {}
+  {
+    action = options.default.action,
+    config = options.default.config,
+    quiet
+  }: APIOptions<typeof options> = {}
 ) => {
   const esConfigDir = path.resolve(config);
   const esConfigName = path.basename(config);
   const esMedia = process.env.ESDE_MEDIA || 'downloaded_media';
-  const media = process.env.GAMELIST_MEDIA || 'media';
-  const mediaPairs = [
-    ['covers', process.env.GAMELIST_BOX2D || 'box2d'],
-    ['3dboxes', process.env.GAMELIST_BOX3D || 'box3d'],
-    ['miximages', process.env.GAMELIST_MIXED || 'mixed'],
-    ['screenshots', process.env.GAMELIST_SCREENSHOT || 'screenshot'],
-    ['videos', process.env.GAMELIST_SNAP || 'snap'],
-    ['titlescreens', process.env.GAMELIST_TITLE || 'title'],
-    ['marquees', process.env.GAMELIST_MARQUEE || 'wheel'],
-    ['manuals', process.env.GAMELIST_MANUAL || 'manual']
+  const env = resolveMediaEnv();
+  const { media } = env;
+  const mediaPairs: [string, string][] = [
+    ['covers', env.box2d],
+    ['3dboxes', env.box3d],
+    ['miximages', env.mixed],
+    ['screenshots', env.screenshot],
+    ['videos', env.snap],
+    ['titlescreens', env.title],
+    ['marquees', env.marquee],
+    ['manuals', env.manual]
   ];
 
   fs.ensureDirSync(esConfigDir);

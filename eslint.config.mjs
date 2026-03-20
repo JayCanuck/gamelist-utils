@@ -23,7 +23,7 @@ export default config({
   },
   settings: {
     'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx']
+      '@typescript-eslint/parser': ['.ts']
     },
     'import/resolver': {
       // You will also need to install and configure the TypeScript resolver
@@ -35,6 +35,8 @@ export default config({
     }
   },
   rules: {
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/consistent-type-imports': ['warn', { prefer: 'type-imports' }],
     'import/no-unresolved': ['error', { caseSensitive: true }],
     'import/named': 'error',
     'import/first': 'warn',

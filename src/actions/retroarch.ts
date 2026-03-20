@@ -4,14 +4,16 @@
 // May require admin/special privileges to symlink
 import path from 'path';
 import fs from 'fs-extra';
-import { find as findXml, forEach as forEachGame, gameName } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { find as findXml, forEach as forEachGame, jsonSafeGameName } from '../utils/gamelist.js';
 
 export const name = 'retroarch';
 
 export const options = {
-  boolean: ['quiet', 'help'],
+  boolean: ['update', 'quiet', 'help'] as const,
   alias: { u: 'update', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -40,12 +42,7 @@ interface RetroArchPlaylist {
   items: RetroArchEntry[];
 }
 
-interface RetroArchOptions {
-  update?: boolean;
-  quiet?: boolean;
-}
-
-export const api = async (dir: string, { update, quiet }: RetroArchOptions = {}) => {
+export const api = async (dir: string, { update, quiet }: APIOptions<typeof options> = {}) => {
   if (!dir) throw new Error('No RetroArch directory specified');
 
   // Env var override support
@@ -81,7 +78,8 @@ export const api = async (dir: string, { update, quiet }: RetroArchOptions = {})
                 sysDirs.map(async sysDir =>
                   forEachGame(sysDir, game => {
                     if (game.path?.[0]) {
-                      gameNames[path.resolve(path.join(sysDir, game.path[0]))] = gameName(game);
+                      gameNames[path.resolve(path.join(sysDir, game.path[0]))] =
+                        jsonSafeGameName(game);
                     }
                   })
                 )
@@ -112,14 +110,14 @@ export const api = async (dir: string, { update, quiet }: RetroArchOptions = {})
   // Generate thumbnail symlinks
   const thumbnailsDir = path.join(dir, 'thumbnails');
   Object.keys(plData).forEach(plName => {
-    const mediaPair = [
+    const mediaPair: [string, string][] = [
       ['Named_Boxarts', box2d],
       ['Named_Snaps', ss],
       ['Named_Titles', title]
     ];
 
     if (!quiet) console.log(`Handling playlist ${plName}`);
-    plData[plName].forEach(({ rom, label }) => {
+    plData[plName]!.forEach(({ rom, label }) => {
       const romDir = path.dirname(rom);
       const romName = path.basename(rom, path.extname(rom));
       const sanitizedLabel = sanitize(label);

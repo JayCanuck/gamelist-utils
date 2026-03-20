@@ -22,7 +22,7 @@ For programmic API-based usage, `gamelist-utils` can be installed locally in pro
 npm install --save gamelist-utils
 ```
 
-> Note: Node 14 LTS or greater required.
+> Note: NodeJS 22 or greater required.
 
 ## RomSet Structure
 
@@ -121,15 +121,26 @@ One obvious caveat, however, is that the `gamelist.xml` must have been generated
 
 A set of premade "Top 35" filters, based off Wikipedia game sales statistics, can be found in the `./filters` directory of this repository.
 
+## Development
+
+This project uses TypeScript with strict settings, Vitest for testing, and ESLint + Prettier for code quality.
+
+```bash
+npm run build        # Compile TypeScript
+npm run lint         # Lint with ESLint + Prettier
+npm run typecheck    # Type-check without emitting
+npm test             # Run Vitest test suite
+```
+
 ## API usage
 
-All actions supported by `gamelist-utils` can be programmatically invoked via commonjs usage. Each action is lazy-loaded, so minimal code is parsed/executed. Every API is currently setup to return a promise, so `async`/`await` can be used to streamline execution. Options supported in CLI will work in APIs as well.
+All actions supported by `gamelist-utils` can be programmatically invoked via ESM imports. Each action is lazy-loaded, so minimal code is parsed/executed. Every API returns a promise, so `async`/`await` can be used to streamline execution. Options supported in CLI will work in APIs as well.
 
 Example:
-```
-const { simplify } = require('gamelist-utils');
+```js
+import { simplify } from 'gamelist-utils';
 
-await simplify(process.cwd(), { quiet: true });
+await simplify.api(process.cwd(), { quiet: true });
 ```
 Note: `quiet:true` is used to prevent console logging.
 

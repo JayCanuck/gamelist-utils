@@ -3,16 +3,18 @@
 // (eg. box2d, box3d, screenshot, etc.)
 import path from 'path';
 import fs from 'fs-extra';
-import { MediaImage } from '../gamelist-types';
-import { update } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import type { MediaImage } from '../gamelist-types.js';
+import { update } from '../utils/gamelist.js';
 
 export const name = 'image-type';
 
 export const options = {
-  boolean: ['quiet', 'help'],
-  string: ['fallback'],
+  boolean: ['quiet', 'help'] as const,
+  string: ['fallback'] as const,
   alias: { f: 'fallback', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -32,15 +34,9 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface ImageTypeOptions {
-  type: MediaImage;
-  fallback?: MediaImage;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
-  { type = 'screenshot', fallback, quiet }: ImageTypeOptions
+  { type = 'screenshot', fallback, quiet }: APIOptions<typeof options> & { type: MediaImage }
 ) => {
   if (!quiet) console.log('Updating image gamelist.xml values for', path.basename(dir));
   let usingFallback = false;

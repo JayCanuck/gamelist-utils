@@ -1,15 +1,17 @@
 // Backs up gamelist.xml files
 import path from 'path';
 import fs from 'fs-extra';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
 
 export const name = 'backup';
 
 export const options = {
-  boolean: ['quiet', 'help'],
-  string: ['ext'],
+  boolean: ['quiet', 'help'] as const,
+  string: ['ext'] as const,
   default: { ext: '.bak' },
   alias: { e: 'ext', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -27,14 +29,9 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface BackupOptions {
-  ext?: string;
-  quiet?: boolean;
-}
-
 export const api = async (
   dir: string,
-  { ext = options.default.ext, quiet }: BackupOptions = { ext: options.default.ext }
+  { ext = options.default.ext, quiet }: APIOptions<typeof options> = { ext: options.default.ext }
 ) => {
   const xml = path.join(dir, 'gamelist.xml');
   if (fs.existsSync(xml)) {

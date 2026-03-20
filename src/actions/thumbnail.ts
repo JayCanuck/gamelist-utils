@@ -2,14 +2,18 @@
 // Able to generate resized copies of assets for fast loading.
 import path from 'path';
 import fs from 'fs-extra';
-import sharp, { FitEnum } from 'sharp';
-import { update } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { FitEnum } from 'sharp';
+import sharp from 'sharp';
+import type { APIOptions } from '../api-types.js';
+import { update } from '../utils/gamelist.js';
+import { relativeMediaPath, resolveMediaEnv, romBasename } from '../utils/media.js';
 
 export const name = 'thumbnail';
 
 export const options = {
-  boolean: ['delete', 'quiet', 'help'],
-  string: ['source', 'width', 'height', 'fit'],
+  boolean: ['delete', 'quiet', 'help'] as const,
+  string: ['source', 'width', 'height', 'fit'] as const,
   default: { width: '320', height: '320', 'fit': 'contain' as keyof FitEnum },
   alias: {
     s: 'source',
@@ -20,7 +24,7 @@ export const options = {
     q: 'quiet',
     h: 'help'
   }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -49,15 +53,7 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface ThumbnailOptions {
-  state: 'enable' | 'enabled' | 'disable' | 'disabled';
-  source?: string;
-  width?: string;
-  height?: string;
-  fit?: keyof FitEnum;
-  delete?: boolean;
-  quiet?: boolean;
-}
+type ThumbnailState = 'enable' | 'enabled' | 'disable' | 'disabled';
 
 export const api = async (
   dir: string,
@@ -69,9 +65,9 @@ export const api = async (
     fit = options.default.fit,
     delete: remove,
     quiet
-  }: ThumbnailOptions
+  }: APIOptions<typeof options> & { state: ThumbnailState }
 ) => {
-  const media = process.env.GAMELIST_MEDIA || 'media';
+  const { media } = resolveMediaEnv();
   const thumb = process.env.GAMELIST_THUMBNAIL || 'thumbnail';
   const thumbDir = path.join(dir, media, thumb);
   const generate: Record<'src' | 'dest', string>[] = [];
@@ -83,12 +79,7 @@ export const api = async (
       logStart = 'Added all detected thumbnail metadata for';
       await update(dir, game => {
         if (game && game.path && game.path[0]) {
-          const rom = game.path[0].replace(/^\.\//, '');
-          const relThumb =
-            './' +
-            path
-              .join(media, thumb, path.basename(rom, path.extname(rom)) + '.png')
-              .replace(/[\\/]+/g, '/');
+          const relThumb = relativeMediaPath(media, thumb, romBasename(game.path[0]));
           const resolvedThumb = path.join(dir, relThumb);
           if (source) {
             const src = path.join(dir, media, source, path.basename(relThumb));
@@ -101,7 +92,8 @@ export const api = async (
         }
       });
       for (let i = 0; i < generate.length; i++) {
-        const { src, dest } = generate[i];
+        const { src, dest } = generate[i]!;
+        console.log(src, dest);
         await sharp(src)
           .resize({
             width: parseInt(width.replace(/px$/, '')),

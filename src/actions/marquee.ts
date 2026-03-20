@@ -1,14 +1,17 @@
 // Adds or removes marquee tags from game entries and optionally delete marquee image files.
 import path from 'path';
 import fs from 'fs-extra';
-import { update } from '../utils/gamelist';
+import type { Opts } from 'minimist';
+import type { APIOptions } from '../api-types.js';
+import { update } from '../utils/gamelist.js';
+import { relativeMediaPath, resolveMediaEnv, romBasename } from '../utils/media.js';
 
 export const name = 'marquee';
 
 export const options = {
-  boolean: ['delete', 'quiet', 'help'],
+  boolean: ['delete', 'quiet', 'help'] as const,
   alias: { d: 'delete', m: 'multi', q: 'quiet', h: 'help' }
-}; // multi omitted as it can be string or boolean
+} satisfies Opts; // multi omitted as it can be string or boolean
 
 export const help = (exitCode = 0) => {
   console.log('  Usage');
@@ -29,18 +32,13 @@ export const help = (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-interface MarqueeOptions {
-  state: 'enable' | 'enabled' | 'disable' | 'disabled';
-  delete?: boolean;
-  quiet?: boolean;
-}
+type MarqueeState = 'enable' | 'enabled' | 'disable' | 'disabled';
 
 export const api = async (
   dir: string,
-  { state = 'enable', delete: remove, quiet }: MarqueeOptions
+  { state = 'enable', delete: remove, quiet }: APIOptions<typeof options> & { state: MarqueeState }
 ) => {
-  const media = process.env.GAMELIST_MEDIA || 'media';
-  const marquee = process.env.GAMELIST_MARQUEE || 'wheel';
+  const { media, marquee } = resolveMediaEnv();
   const marqueeDir = path.join(dir, media, marquee);
   let logStart = '';
   switch (state) {
@@ -49,12 +47,7 @@ export const api = async (
       logStart = 'Added all detected marquee image metadata for';
       await update(dir, game => {
         if (game && game.path && game.path[0]) {
-          const rom = game.path[0].replace(/^\.\//, '');
-          const relMarquee =
-            './' +
-            path
-              .join(media, marquee, path.basename(rom, path.extname(rom)) + '.png')
-              .replace(/[\\/]+/g, '/');
+          const relMarquee = relativeMediaPath(media, marquee, romBasename(game.path[0]));
           if (fs.existsSync(path.join(dir, relMarquee))) game.marquee = [relMarquee];
         }
       });
