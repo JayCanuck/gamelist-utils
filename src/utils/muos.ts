@@ -65,7 +65,12 @@ export const findCatalogue = (romBasedDir: string): string | undefined => {
 };
 
 export const updateAssign = async (file: string, values: Record<string, System>) => {
-  const assign: Record<string, string> = JSON.parse(await fs.readFile(file, { encoding: 'utf8' }));
+  let assign: Record<string, string>;
+  try {
+    assign = JSON.parse(await fs.readFile(file, { encoding: 'utf8' }));
+  } catch (e) {
+    throw new Error(`Failed to read or parse assign file: ${file}`, { cause: e });
+  }
   const updated = {
     ...assign,
     ...Object.entries(values).reduce(
@@ -77,7 +82,12 @@ export const updateAssign = async (file: string, values: Record<string, System>)
 };
 
 export const updateFolder = async (file: string, values: Record<string, System | string>) => {
-  const folder: Record<string, string> = JSON.parse(await fs.readFile(file, { encoding: 'utf8' }));
+  let folder: Record<string, string>;
+  try {
+    folder = JSON.parse(await fs.readFile(file, { encoding: 'utf8' }));
+  } catch (e) {
+    throw new Error(`Failed to read or parse folder file: ${file}`, { cause: e });
+  }
   const updated = {
     ...folder,
     ...values

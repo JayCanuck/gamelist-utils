@@ -104,12 +104,23 @@ describe('Filter', () => {
   });
 
   describe('Filter.load', () => {
-    it('loads a JSON5 filter file', async () => {
-      const filterFile = path.join(tmpDir, 'filter.json');
-      fs.writeFileSync(filterFile, JSON.stringify({ include: [{ name: 'Game' }] }), 'utf8');
+    it('loads filter from JSON5 file', async () => {
+      const filterFile = path.join(tmpDir, 'test-filter.json5');
+      fs.writeFileSync(filterFile, JSON.stringify({ include: [{ name: 'Test Game' }] }));
       const filter = await Filter.load(filterFile);
-      expect(filter).toBeInstanceOf(Filter);
       expect(filter.data.include).toHaveLength(1);
+    });
+
+    it('throws error for non-existent filter file', async () => {
+      await expect(Filter.load(path.join(tmpDir, 'missing.json'))).rejects.toThrow(
+        'Filter file not found'
+      );
+    });
+
+    it('throws error for malformed JSON filter file', async () => {
+      const filterFile = path.join(tmpDir, 'bad-filter.json');
+      fs.writeFileSync(filterFile, '{ invalid json }');
+      await expect(Filter.load(filterFile)).rejects.toThrow('Failed to parse filter file');
     });
   });
 });

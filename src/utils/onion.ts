@@ -38,16 +38,20 @@ export const convertToMiyooGamelist = (dir: string, data: GameList | GameListEns
       if (image) files.push(image);
 
       if (game.path[0].endsWith('.m3u')) {
-        const m3uDir = path.dirname(game.path[0]);
-        const m3uFiles = fs
-          .readFileSync(game.path[0], { encoding: 'utf8' })
-          .split(/[\n\r]+/)
-          .map(line => line.trim())
-          .filter(Boolean)
-          .map(m3uFile => path.join(dir, m3uDir, m3uFile))
-          .filter(m3uFile => fs.existsSync(m3uFile));
+        try {
+          const m3uDir = path.dirname(game.path[0]);
+          const m3uFiles = fs
+            .readFileSync(fullPath, { encoding: 'utf8' })
+            .split(/[\n\r]+/)
+            .map(line => line.trim())
+            .filter(Boolean)
+            .map(m3uFile => path.join(dir, m3uDir, m3uFile))
+            .filter(m3uFile => fs.existsSync(m3uFile));
 
-        files.push(...m3uFiles);
+          files.push(...m3uFiles);
+        } catch {
+          // Skip m3u processing if file can't be read
+        }
       }
     }
   });

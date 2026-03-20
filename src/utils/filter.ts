@@ -31,7 +31,7 @@ const testcase = (
       );
     } else if (key.endsWith('Contains')) {
       const value = (getValue(game, key.replace('Contains', '')) || '').toLowerCase();
-      return value && value.toLowerCase().includes(criteria[key]!) === polarity;
+      return value && value.includes(criteria[key]!.toLowerCase()) === polarity;
     } else {
       const value = getValue(game, key);
       return value && (criteria[key]!.toLowerCase() === value.toLowerCase()) === polarity;
@@ -65,13 +65,22 @@ export class Filter {
   }
 
   static async load(file: string) {
+    const resolvedPath = path.resolve(file);
+    if (!fs.existsSync(resolvedPath)) {
+      throw new Error(`Filter file not found: ${file}`);
+    }
+
     let value: FilterData;
 
     if (file.endsWith('.js') || file.endsWith('.cjs') || file.endsWith('.mjs')) {
-      const script = await import(pathToFileURL(path.resolve(file)).href);
+      const script = await import(pathToFileURL(resolvedPath).href);
       value = script.default || script;
     } else {
-      value = JSON5.parse(fs.readFileSync(file, { encoding: 'utf8' }));
+      try {
+        value = JSON5.parse(fs.readFileSync(resolvedPath, { encoding: 'utf8' }));
+      } catch (e) {
+        throw new Error(`Failed to parse filter file: ${file}`, { cause: e });
+      }
     }
 
     return new Filter(value);

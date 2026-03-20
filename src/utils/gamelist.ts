@@ -5,6 +5,7 @@ import type { Entry, GameList, GameListEnsured, Provider } from '../gamelist-typ
 
 export const find = function (filepath: string): string | null {
   filepath = path.resolve(filepath);
+  if (!fs.existsSync(filepath)) return null;
   if (fs.statSync(filepath).isFile()) {
     return find(path.dirname(filepath));
   } else {
