@@ -1,17 +1,31 @@
-name: CI
+name: Lint & Type Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
 
 jobs:
-  ci:
+  lint:
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
         node-version: '22'
         cache: 'npm'
-    - run: npm ci
-    - run: npm run lint
-    - run: npm run typecheck
-    - run: npm run test
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run ESLint
+      run: npm run lint
+    
+    - name: Run TypeScript type check
+      run: npm run typecheck

@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [22.x, 23.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Run tests with coverage
+      run: npm run test:coverage
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: matrix.node-version == '22.x'
+      with:
+        files: ./coverage/coverage-final.json
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
