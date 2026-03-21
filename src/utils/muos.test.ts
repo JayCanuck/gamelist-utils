@@ -69,6 +69,23 @@ describe('muos.updateAssign', () => {
     expect(result.existing).toBe('value.ini');
     expect(result.snes).toBe('nintendo snes/sfc.ini');
   });
+
+  it('throws error when assign file does not exist', async () => {
+    const assignFile = path.join(tmpDir, 'nonexistent.json');
+
+    await expect(updateAssign(assignFile, { snes: 'Nintendo SNES/SFC' as never })).rejects.toThrow(
+      'Failed to read or parse assign file'
+    );
+  });
+
+  it('throws error when assign file contains invalid JSON', async () => {
+    const assignFile = path.join(tmpDir, 'invalid.json');
+    fs.writeFileSync(assignFile, '{ invalid json }', 'utf8');
+
+    await expect(updateAssign(assignFile, { snes: 'Nintendo SNES/SFC' as never })).rejects.toThrow(
+      'Failed to read or parse assign file'
+    );
+  });
 });
 
 describe('muos.updateFolder', () => {
@@ -81,5 +98,22 @@ describe('muos.updateFolder', () => {
     const result = JSON.parse(fs.readFileSync(folderFile, 'utf8'));
     expect(result.existing).toBe('Old System');
     expect(result.snes).toBe('SNES');
+  });
+
+  it('throws error when folder file does not exist', async () => {
+    const folderFile = path.join(tmpDir, 'nonexistent.json');
+
+    await expect(updateFolder(folderFile, { snes: 'SNES' })).rejects.toThrow(
+      'Failed to read or parse folder file'
+    );
+  });
+
+  it('throws error when folder file contains invalid JSON', async () => {
+    const folderFile = path.join(tmpDir, 'invalid.json');
+    fs.writeFileSync(folderFile, '{ invalid json }', 'utf8');
+
+    await expect(updateFolder(folderFile, { snes: 'SNES' })).rejects.toThrow(
+      'Failed to read or parse folder file'
+    );
   });
 });

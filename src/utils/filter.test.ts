@@ -111,6 +111,37 @@ describe('Filter', () => {
       expect(filter.data.include).toHaveLength(1);
     });
 
+    it('loads filter from .js file with default export', async () => {
+      const filterFile = path.join(tmpDir, 'test-filter.js');
+      fs.writeFileSync(filterFile, 'export default { include: [{ name: "Test Game" }] };');
+      const filter = await Filter.load(filterFile);
+      expect(filter.data.include).toHaveLength(1);
+      expect(filter.data.include![0]!.name).toBe('Test Game');
+    });
+
+    it('loads filter from .mjs file with default export', async () => {
+      const filterFile = path.join(tmpDir, 'test-filter.mjs');
+      fs.writeFileSync(filterFile, 'export default { include: [{ name: "MJS Game" }] };');
+      const filter = await Filter.load(filterFile);
+      expect(filter.data.include).toHaveLength(1);
+      expect(filter.data.include![0]!.name).toBe('MJS Game');
+    });
+
+    it('loads filter from .cjs file with module.exports', async () => {
+      const filterFile = path.join(tmpDir, 'test-filter.cjs');
+      fs.writeFileSync(filterFile, 'module.exports = { include: [{ name: "CJS Game" }] };');
+      const filter = await Filter.load(filterFile);
+      expect(filter.data.include).toHaveLength(1);
+      expect(filter.data.include![0]!.name).toBe('CJS Game');
+    });
+
+    it('loads filter from .js file with named exports (no default)', async () => {
+      const filterFile = path.join(tmpDir, 'test-filter-named.js');
+      fs.writeFileSync(filterFile, 'export const include = [{ name: "Named Export Game" }];');
+      const filter = await Filter.load(filterFile);
+      expect(filter.data.include).toHaveLength(1);
+    });
+
     it('throws error for non-existent filter file', async () => {
       await expect(Filter.load(path.join(tmpDir, 'missing.json'))).rejects.toThrow(
         'Filter file not found'
